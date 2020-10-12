@@ -8,13 +8,12 @@
 #include "log.h"
 #include "cam_utils.h"
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_example_camera_MainActivity_native_1test(JNIEnv *env, jobject thiz) {
-
-}
-
 using namespace cam;
+
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
+static GLuint textureId;
 
 static AImageReader* imageReader = nullptr;
 
@@ -54,4 +53,37 @@ AImageReader* createJpegReader()
     AImageReader_setImageListener(reader, &listener);
 
     return reader;
+}
+
+static void initCam(JNIEnv* env, jobject surface)
+{
+    //
+}
+
+static void initSurface(JNIEnv* env, jint texId, jobject surface) {
+    // We can use the id to bind to GL_TEXTURE_EXTERNAL_OES
+    textureId = texId;
+
+    // Prepare the surfaces/targets & initialize session
+    initCam(env, surface);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_camera_MainActivity_nativeTest(JNIEnv *env, jobject thiz) {
+    // TODO: implement nativeTest()
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_camera_CamRenderer_nativeOnSurfaceCreated(JNIEnv *env, jobject thiz,
+                                                           jint texture_id, jobject surface) {
+    initSurface(env, texture_id, surface);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_camera_CamRenderer_nativeOnDrawFrame(JNIEnv *env, jobject thiz,
+                                                      jfloatArray tex_matrix) {
+    // TODO: implement nativeOnDrawFrame()
 }

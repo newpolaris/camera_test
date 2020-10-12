@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
 
         val view = findViewById<View>(R.id.view)
         view.setOnClickListener(View.OnClickListener {
-            native_test()
+            nativeTest()
         })
     }
 
@@ -32,10 +32,10 @@ class MainActivity : AppCompatActivity() {
             // camSurfaceView.onResume()
         }
 
-        native_test()
+        nativeTest()
     }
 
-    external fun native_test()
+    external fun nativeTest()
 
     companion object {
         val CAM_PERMISSION_CODE = 666
