@@ -6,7 +6,8 @@ find_library(android-lib android)
 find_library(gl-lib GLESv2)
 
 add_library(jniapi SHARED
-            jniapi.cpp)
+        jniapi.cpp
+        cam_utils.cpp)
 
 target_link_libraries(jniapi
         android
