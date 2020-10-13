@@ -89,11 +89,17 @@ static const char* fragmentShaderSrc = R"(
             return vec2((rgba.b - Y) * 0.565, (rgba.r - Y) * 0.713);
         }
 
+        // https://stackoverflow.com/questions/60767805/chromakey-glsl-shader-with-transparent-background
         vec4 chromakey(vec4 color, vec4 key)
         {
-            if (length(color - key) < 0.8)
-                color.b = 1.0;
-            return color;
+            vec4 red = vec4(1.0, 0.0, 0.0, 0.0);
+            vec2 range = vec2(0.11, 0.32);
+            vec2 cc = RGBToCC(color);
+            vec2 keyCC = RGBToCC(key);
+            float mask = sqrt(pow(keyCC.x - cc.x, 2.0) + pow(keyCC.y - cc.y, 2.0));
+            mask = smoothstep(range.x, range.y, mask);
+
+            return mix(red, color, mask);
         }
 
         void main()
