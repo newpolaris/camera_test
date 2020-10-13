@@ -28,7 +28,7 @@ class CamRenderer: GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceChanged(p0: GL10?, p1: Int, p2: Int) {
-        TODO("Not yet implemented")
+        nativeOnSurfaceChanged(p1, p2);
     }
 
     override fun onSurfaceCreated(p0: GL10?, p1: EGLConfig?) {
@@ -52,4 +52,5 @@ class CamRenderer: GLSurfaceView.Renderer {
 
     external fun nativeOnSurfaceCreated(textureId: Int, surface: Surface)
     external fun nativeOnDrawFrame(texMatrix: FloatArray)
+    external fun nativeOnSurfaceChanged(width: Int, height: Int);
 }

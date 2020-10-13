@@ -8,7 +8,7 @@ class CamSurfaceView : GLSurfaceView {
 
     var camRenderer : CamRenderer
 
-    constructor(context: Context?, attrs: AttributeSet) : super(context, attrs) {
+    constructor(context: Context?) : super(context) {
         setEGLContextClientVersion(2)
 
         camRenderer = CamRenderer()

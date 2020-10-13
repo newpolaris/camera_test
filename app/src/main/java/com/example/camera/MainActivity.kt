@@ -1,22 +1,34 @@
 package com.example.camera
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CameraMetadata
+import android.opengl.GLSurfaceView
 import android.os.Build
 import android.os.Bundle
+import android.view.SurfaceView
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
+
+    lateinit var view: GLSurfaceView;
 
     override fun onCreate(savedInstanceState : Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        view = CamSurfaceView(getApplicationContext())
+        setContentView(view)
 
-        val view = findViewById<View>(R.id.view)
-        view.setOnClickListener(View.OnClickListener {
-            nativeTest()
-        })
+        if (!isNativeCamSupported()) {
+            Toast.makeText(this, "Native camera probably won't work on this device!",
+                    Toast.LENGTH_LONG).show()
+            finish()
+        }
     }
 
     override fun onResume() {
@@ -28,14 +40,35 @@ class MainActivity : AppCompatActivity() {
                 checkSelfPermission(camPermission) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(camPermission), CAM_PERMISSION_CODE)
         } else {
-            // initCam()
-            // camSurfaceView.onResume()
+            nativeInitCameraDevice()
+            view.onResume()
         }
-
-        nativeTest()
     }
 
-    external fun nativeTest()
+    override fun onPause() {
+        super.onPause()
+        view.onPause()
+        nativeExitCameraDevice()
+    }
+
+    fun isNativeCamSupported(): Boolean {
+        val camManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        var nativeCamSupported = false
+
+        for (camId in camManager.cameraIdList) {
+            val characteristics = camManager.getCameraCharacteristics(camId)
+            val hwLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+            if (hwLevel != CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+                nativeCamSupported = true
+                break
+            }
+        }
+
+        return nativeCamSupported
+    }
+
+    external fun nativeInitCameraDevice()
+    external fun nativeExitCameraDevice()
 
     companion object {
         val CAM_PERMISSION_CODE = 666
