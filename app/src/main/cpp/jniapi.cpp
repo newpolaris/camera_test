@@ -84,9 +84,23 @@ static const char* fragmentShaderSrc = R"(
         uniform vec4 color;
         uniform vec2 size;
 
+        vec2 RGBToCC(vec4 rgba) {
+            float Y = 0.299 * rgba.r + 0.587 * rgba.g + 0.114 * rgba.b;
+            return vec2((rgba.b - Y) * 0.565, (rgba.r - Y) * 0.713);
+        }
+
+        vec4 chromakey(vec4 color, vec4 key)
+        {
+            if (length(color - key) < 0.8)
+                color.b = 1.0;
+            return color;
+        }
+
         void main()
         {
-            gl_FragColor = texture2D(texSampler, varUvs) * color;
+            vec4 refColor = vec4(0.05, 0.63, 0.14, 1.0);
+            vec4 texColor = texture2D(texSampler, varUvs);
+            gl_FragColor = chromakey(texColor, refColor) * color;
         }
 )";
 
@@ -202,7 +216,10 @@ static void exitCameraDevice()
         imageReader = nullptr;
 
         // Capture request for SurfaceTexture
-        ANativeWindow_release(textureWindow);
+        // SIGSEGV
+        if (textureWindow)
+            ANativeWindow_release(textureWindow);
+        textureWindow = nullptr;
         ACaptureRequest_free(request);
     }
 }
